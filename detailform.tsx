@@ -1,6 +1,5 @@
 //  app / components / settings / detailform.tsx
 
-
 'use client';
 import clsx from 'clsx';
 import { useRef, useState } from 'react';
@@ -28,8 +27,6 @@ interface FormData {
 }
 
 export default function DetailForm() {
- 
-
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [formData, setFormData] = useState<FormData>({
     name: '',
@@ -70,43 +67,32 @@ export default function DetailForm() {
     setEdit(!isEdit);
   };
 
-  const authUrl = 'https://api.lawmatepk.com/dj-rest-auth/token/verify/';
-
   const userUrl = 'https://api.lawmatepk.com/user/me/';
 
-  const token =
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzI4NDE2NjU3LCJpYXQiOjE3MjU4MjQ2NTcsImp0aSI6ImNhNGUyOTFmMmQ4NjRmNTNiMjBkYjJlZmJkZTY5MmQ3IiwidXNlcl9pZCI6Mn0.Vnvh8rU_MjqwP_CF95dVrPR2H5VS-XjoxKrk7UFwswg';
-  console.log(token);
 
   useEffect(() => {
-    const fetchUserDetails = async (accessKey: string) => {
-      try {
-        const getUserDetails = await fetch(
-          'https://api.lawmatepk.com/user/me/',
-          {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `JWT ${accessKey}`,
-            },
-          }
-        );
-
-        if (getUserDetails.ok) {
-          const result = await getUserDetails.json();
-          console.log(result);
-          console.log('User Data Received');
-        } else {
-          console.log('Failed to fetch user details');
-        }
-      } catch (error) {
-        console.error('Error fetching user details:', error);
-      }
-    };
     const userToken = getUserToken();
-    if (userToken) {
-      fetchUserDetails(token);
-    }
+    fetch('https://api.lawmatepk.com/user/me/', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `JWT ${userToken}`,
+      },
+    })
+      .then((response) => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          throw new Error('Failed to fetch user details');
+        }
+      })
+      .then((result) => {
+        console.log(result);
+        console.log('User Data Received');
+      })
+      .catch((error) => {
+        console.error('Error fetching user details:', error);
+      });
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
