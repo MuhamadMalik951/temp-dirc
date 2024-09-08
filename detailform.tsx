@@ -8,53 +8,59 @@ import { CustomSelect, CustomTextarea } from '@/app/components/customInput';
 // use
 import { useForm } from 'react-hook-form';
 import { useEffect } from 'react';
-import Cookies from 'js-cookie';
 import { getUserData, getUserToken } from '@/app/user/utils';
+import Image from 'next/image';
 
-useEffect;
 interface FormData {
-  phoneNo: string;
-  date: string;
-  cnic: string;
-  licenseNO: string;
-  CouncilRegNo: string;
-  AboutMe: string;
-  Language: string;
+  phone: string;
+  // date: string;
+  // cnic: string;
+  // licenseNO: string;
+  // CouncilRegNo: string;
+  // AboutMe: string;
+  // Language: string;
   name: string;
   email: string;
-  imgPreview: string;
-  img: File | null | string | MediaSource;
+  // imgPreview: string;
+  gender: string;
+  profile_picture: File | null | string | MediaSource;
+  id: number;
+  is_lawyer: boolean;
+  is_verified: boolean;
+}
+interface FormData {
+  phone: string;
+  name: string;
+  email: string;
+  gender: string;
+  profile_picture: File | null | string | MediaSource;
+  id: number;
+  is_lawyer: boolean;
+  is_verified: boolean;
 }
 
 export default function DetailForm() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [formData, setFormData] = useState<FormData>({
-    name: '',
     email: '',
-    phoneNo: '',
-    date: '',
-    cnic: '',
-    licenseNO: '',
-    CouncilRegNo: '',
-    AboutMe: '',
-    Language: '',
-    img: '',
-    imgPreview: '',
+    gender: '',
+    id: 2,
+    is_lawyer: false,
+    is_verified: true,
+    name: '',
+    phone: '',
+    profile_picture: null,
   });
 
   const [receivedFormData, setReceievedFormData] = useState<FormData>({
-    name: 'dummyName',
-    email: 'dummy@gmail.com',
-    phoneNo: '03012345678',
-    date: '2023-08-20',
-    cnic: '3630112345678',
-    licenseNO: '43434',
-    CouncilRegNo: '23598934',
-    AboutMe: 'Written on these wall are the stories about me.',
-    Language: 'English',
-    imgPreview:
-      'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp',
-    img: '',
+    email: 'test@email.com',
+    gender: 'M',
+    id: 2,
+    is_lawyer: false,
+    is_verified: true,
+    name: 'Test User',
+    phone: '03003435353',
+    profile_picture: null,
   });
 
   const [isEdit, setEdit] = useState(false);
@@ -69,7 +75,6 @@ export default function DetailForm() {
 
   const userUrl = 'https://api.lawmatepk.com/user/me/';
 
-
   useEffect(() => {
     const userToken = getUserToken();
     fetch('https://api.lawmatepk.com/user/me/', {
@@ -83,15 +88,23 @@ export default function DetailForm() {
         if (response.ok) {
           return response.json();
         } else {
-          throw new Error('Failed to fetch user details');
+          throw new Error('couldnt get data');
         }
       })
       .then((result) => {
-        console.log(result);
-        console.log('User Data Received');
+        setReceievedFormData({
+          email: result.email,
+          gender: result.gender,
+          id: result.id,
+          is_lawyer: result.is_lawyer,
+          is_verified: result.is_verified,
+          name: result.name,
+          phone: result.phone,
+          profile_picture: result.profile_picture || '',
+        });
       })
       .catch((error) => {
-        console.error('Error fetching user details:', error);
+        console.error('Error occured geting user details ', error);
       });
   }, []);
 
@@ -123,35 +136,42 @@ export default function DetailForm() {
           <div className="lg:flex lg:flex-col w-full lg:justify-around lg:items-start flex flex-col items-center">
             <div className=" flex flex-col items-center lg:justify-start mt-10 lg:ml-28">
               <div className="aspect- w-36 h-36 lg:w-52 lg:h-52 object-cover cursor-pointer flex justify-center">
-                <img
-                  className="avatar rounded-full object-cover w-full h-full cursor-pointer "
-                  alt="Tailwind CSS Navbar component"
-                  onClick={(e) => {
-                    setFormData({ ...formData, img: e.target.value });
-                  }}
-                  src={receivedFormData.imgPreview}
+                <Image
+                  src="https://img.daisyui.com/images/profile/demo/2@94.webp"
+                  width={500}
+                  height={500}
+                  alt="profile pciture"
+                  className='avatar rounded-full object-cover w-full h-full cursor-pointer'
+                  // className="avatar rounded-full object-cover w-full h-full cursor-pointer"
+                  // alt="Tailwind CSS Navbar component"
+                  // onClick={(e) => {
+                  // setFormData({ ...formData, img: e.target.value });
+                  // }}
+                  // src={receivedFormData.imgPreview}
                 />
               </div>
               <input
                 type="file"
                 ref={fileInputRef}
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
+                onChange={
+                  (e) => {
+                    const file = e.target.files?.[0];
 
-                  if (file) {
-                    setFormData({
-                      ...formData,
-                      img: file,
-                      imgPreview: URL.createObjectURL(file),
-                    });
-                  } else {
-                    setFormData({
-                      ...formData,
-                      img: null,
-                      imgPreview: '',
-                    });
+                    // if (file) {
+                    // setFormData({
+                    // ...formData,
+                    // img: file,
+                    // imgPreview: URL.createObjectURL(file),
+                    // });
+                    // } else {
+                    // setFormData({
+                    // ...formData,
+                    // img: null,
+                    // imgPreview: '',
+                    // });
                   }
-                }}
+                  // }}
+                }
                 className={clsx(
                   isEdit
                     ? 'flex justify-center border-transparent text-white items-center ml-20 mt-5 file-input  file-input-info fill-blue file-input-bordered file-input-sm w-full max-w-52 '
@@ -163,7 +183,7 @@ export default function DetailForm() {
               <div className="flex flex-col text-center mt-3">
                 <div className="font-semibold">{receivedFormData.name}</div>
                 <div className="text-gray">{receivedFormData.email}</div>
-                <div className="antialiased">{receivedFormData.phoneNo}</div>
+                <div className="antialiased">{receivedFormData.phone}</div>
               </div>
             </div>
 
@@ -205,9 +225,9 @@ export default function DetailForm() {
                     id="phone"
                     type="tel"
                     placeholder="Mobile Number"
-                    value={isEdit ? formData.phoneNo : receivedFormData.phoneNo}
+                    value={isEdit ? formData.phone : receivedFormData.phone}
                     onChange={(e) =>
-                      setFormData({ ...formData, phoneNo: e.target.value })
+                      setFormData({ ...formData, phone: e.target.value })
                     }
                     readOnly={!isEdit}
                   />
@@ -218,10 +238,10 @@ export default function DetailForm() {
                     id="date"
                     type="date"
                     placeholder="Date"
-                    value={isEdit ? formData.date : receivedFormData.date}
-                    onChange={(e) =>
-                      setFormData({ ...formData, date: e.target.value })
-                    }
+                    // value={isEdit ? formData.date : receivedFormData.date}
+                    // onChange={(e) =>
+                    // setFormData({ ...formData, date: e.target.value })
+                    // }
                     readOnly={!isEdit}
                   />
                   <p className="text-error text-xs mt-1" />
@@ -234,10 +254,10 @@ export default function DetailForm() {
                     id="cnic"
                     type="number"
                     placeholder="CNIC No"
-                    value={isEdit ? formData.cnic : receivedFormData.cnic}
-                    onChange={(e) =>
-                      setFormData({ ...formData, cnic: e.target.value })
-                    }
+                    // value={isEdit ? formData.cnic : receivedFormData.cnic}
+                    // onChange={(e) =>
+                    //   setFormData({ ...formData, cnic: e.target.value })
+                    // }
                     readOnly={!isEdit}
                   />
                   <p className="text-error text-xs mt-1" />
@@ -247,12 +267,12 @@ export default function DetailForm() {
                     id="licenseNo"
                     type="number"
                     placeholder="License No"
-                    value={
-                      isEdit ? formData.licenseNO : receivedFormData.licenseNO
-                    }
-                    onChange={(e) =>
-                      setFormData({ ...formData, licenseNO: e.target.value })
-                    }
+                    // value={
+                    //   isEdit ? formData.licenseNO : receivedFormData.licenseNO
+                    // }
+                    // onChange={(e) =>
+                    //   setFormData({ ...formData, licenseNO: e.target.value })
+                    // }
                     readOnly={!isEdit}
                   />
                   <p className="text-error text-xs mt-1" />
@@ -264,11 +284,11 @@ export default function DetailForm() {
                     id="councilRegNo"
                     type="number"
                     placeholder="Council Registration Number"
-                    value={
-                      isEdit
-                        ? formData.CouncilRegNo
-                        : receivedFormData.CouncilRegNo
-                    }
+                    // value={
+                    //   isEdit
+                    //     ? formData.CouncilRegNo
+                    //     : receivedFormData.CouncilRegNo
+                    // }
                     onChange={(e) =>
                       setFormData({ ...formData, CouncilRegNo: e.target.value })
                     }
@@ -284,23 +304,23 @@ export default function DetailForm() {
                 <div className="w-full">
                   <CustomTextarea
                     placeholder="Bio"
-                    value={isEdit ? formData.AboutMe : receivedFormData.AboutMe}
-                    onChange={(e) =>
-                      setFormData({ ...formData, AboutMe: e.target.value })
-                    }
+                    // value={isEdit ? formData.AboutMe : receivedFormData.AboutMe}
+                    // onChange={(e) =>
+                    //   setFormData({ ...formData, AboutMe: e.target.value })
+                    // }
                     readOnly={!isEdit}
                   />
                   <div className="flex gap-6 flex-col mb-10">
                     <div className="mt-4 font-semibold">Select Language</div>
                     <CustomSelect
                       id="language"
-                      value={
-                        isEdit ? formData.Language : receivedFormData.Language
-                      }
-                      readOnly={!isEdit}
-                      onChange={(e) =>
-                        setFormData({ ...formData, Language: e.target.value })
-                      }
+                      // value={
+                      //   isEdit ? formData.Language : receivedFormData.Language
+                      // }
+                      // readOnly={!isEdit}
+                      // onChange={(e) =>
+                      //   setFormData({ ...formData, Language: e.target.value })
+                      // }
                       options={[
                         { label: 'English', value: 'English' },
                         { label: 'German', value: 'German' },
